@@ -10,31 +10,30 @@
 #include <MSOE/bit.c>
 #include <avr/interrupt.h>
 
-void setup(void);
+#include "states.h"
 
-typedef uint8_t STATE;
-enum STATE {IDLE, BUSY, COLLISION};
+void initSetup(void);
 
 int currentState;
 
 int main(void)
 {
-	setup();
+	initSetup();
 
 	currentState = IDLE;
 
 	switch(currentState)
 		{
 			case IDLE:			// Idle State
-
+				idle();
 			break;
 
 			case BUSY:			// Busy State
-
+				busy();
 			break;
 
 			case COLLISION:		// Collision State
-
+				collision();
 			break;
 
 			default:
@@ -44,12 +43,13 @@ int main(void)
 
 }
 
-void setup(void)
+void initSetup(void)
 {
-	DDRD 	|= (1<<3);	// PD3(output), PD2(input)
-	PORTD 	|= (1<<3);	// PD3(high), PD2(low)
+	// pin INT1 (PD3) has pin change interrupt
+	DDRD 	|= (1<<2);	// PD3(input), PD2(output)
+	PORTD 	|= (1<<2);	// PD3(low)  , PD2(high)
 
 	DDRB	|= (1<<2)|(1<<1)|(1<<0);	// PB2,PB1,PB0 (outputs)
-	PORTD	&= (0b11111000);			//PB2-0 (all low)	USE FOR LEDs
+	PORTD	&= (0b11111000);			// PB2-0 (all low)	USE FOR LEDs
 }
 
