@@ -32,6 +32,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.683402809" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize"/>
 								<option id="de.innot.avreclipse.compiler.option.incpath.851598086" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;D:\ARDUINOworkspace&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\ARDUINOworkspace&quot;"/>
 								</option>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.1961731277" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
 							</tool>
