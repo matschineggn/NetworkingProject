@@ -13,6 +13,9 @@
 
 void setup(void);
 
+typedef uint8_t STATE;
+enum STATE {RESET, IDLE, BUSY, COLLISION};
+
 int state;
 int idle = 1;
 int busy = 2;
@@ -24,15 +27,15 @@ int main(void)
 
 	switch(state)
 		{
-			case 1:		// Idle State
+			case IDLE:		// Idle State
 
 			break;
 
-			case 2:		// Busy State
+			case BUSY:		// Busy State
 
 			break;
 
-			case 3:		// Collision State
+			case COLLISION:		// Collision State
 
 			break;
 		}
