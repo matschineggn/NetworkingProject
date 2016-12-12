@@ -5,4 +5,16 @@
  *      Author: matsc
  */
 
+#include <avr/io.h>
+#include <MSOE_I2C/delay.h>
+#include <MSOE_I2C/lcd.h>
+#include <MSOE/bit.c>
+#include <avr/interrupt.h>
 
+
+int main(void)
+{
+
+
+
+}
