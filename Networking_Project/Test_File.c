@@ -18,7 +18,9 @@
 void pinSetup(void);
 //void stateCheck(void);
 
-int Tb = 400; 	// period in micro second (400us = 0.4ms)
+int Tb = 215; 	// period in micro second (400us = 0.4ms) (Using 215 to obtain proper threshold)
+// I think that Tb needs to be around half the 400us because it is acting like the sample frequency
+// which needs to be twice the fastest frequency, or half 400us.
 
 //int currentState;			// declared in "FSM.h"
 //int nextState;			// declared in "FSM.h"
