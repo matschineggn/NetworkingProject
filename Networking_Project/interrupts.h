@@ -1,65 +1,59 @@
 /*
- * states.h
+ * interrupts.h
  *
- *  Created on: Dec 12, 2016
- *      Author: matschineggn
+ *  Created on: Dec 14, 2016
+ *      Author: matsc
  */
 
-#ifndef STATES_H_
-#define STATES_H_
+#ifndef INTERRUPTS_H_
+#define INTERRUPTS_H_
 
 #include <avr/io.h>
 //#include <MSOE_I2C/delay.h>
 #include <MSOE/bit.c>
 #include <avr/interrupt.h>
 
-#include "interrupts.h"
+#include "states.h"
 #include "timer.h"
 #include "FSM.h"
 
-/**
- * States of the state machine
- */
-typedef uint8_t STATE;
-enum STATE {IDLE, BUSY, COLLISION};
+int whileEscape;
+int RxLine;
 
 /********************************************************************************
- * Function name: idle
+ * Function name: interruptSetup
  * Operation:
  * Inputs: None
  * Returns: None
  * Alters: None
- * Implemented: 12/12/16
+ * Implemented: 12/14/16
  * Edited:
  *********************************************************************************/
-void idle(void);
 
-void idleLED(void);
+void interruptSetup(void);
 
 /********************************************************************************
- * Function name: busy
+ * Function name: interruptEnable
  * Operation:
  * Inputs: None
  * Returns: None
  * Alters: None
- * Implemented: 12/12/16
+ * Implemented: 12/14/16
  * Edited:
  *********************************************************************************/
-void busy(void);
 
-void busyLED(void);
+void interruptEnable(void);
 
 /********************************************************************************
- * Function name: collision
+ * Function name: interruptDisable
  * Operation:
  * Inputs: None
  * Returns: None
  * Alters: None
- * Implemented: 12/12/16
+ * Implemented: 12/14/16
  * Edited:
  *********************************************************************************/
-void collision(void);
 
-void collisionLED(void);
+void interruptDisable(void);
 
-#endif /* STATES_H_ */
+#endif /* INTERRUPTS_H_ */

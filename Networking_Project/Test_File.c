@@ -11,45 +11,82 @@
 #include <avr/interrupt.h>
 
 #include "states.h"
+#include "interrupts.h"
+#include "timer.h"
+#include "FSM.h"
 
-void initSetup(void);
+void pinSetup(void);
+//void stateCheck(void);
 
-int currentState;
+int Tb = 400; 	// period in micro second (400us = 0.4ms)
+
+//int currentState;			// declared in "FSM.h"
+//int nextState;			// declared in "FSM.h"
+//int initRxLine;				// declared in "FSM.h"
+//int RxLine;				// declared in "interrupts.h"
+//int whileEscape;			// declared in "interrupts.h"
+//int count;				// declared in "timer.h"
 
 int main(void)
 {
-	initSetup();
+	pinSetup();
+	interruptSetup();
 
-	currentState = IDLE;
+	initRxLine = PIND & (0x04);
 
-	switch(currentState)
+	if(initRxLine == 4)
+	{
+		currentState = IDLE;
+	}
+	else
+	{
+		currentState = COLLISION;
+	}
+
+	while(1)
+	{
+		switch(currentState)
 		{
 			case IDLE:			// Idle State
 				idle();
+				FSM(Tb);
 			break;
 
 			case BUSY:			// Busy State
 				busy();
+				FSM(Tb);
 			break;
 
 			case COLLISION:		// Collision State
 				collision();
+				FSM(Tb);
 			break;
 
 			default:
 				currentState = IDLE;
 			break;
 		}
-
+	}
 }
 
-void initSetup(void)
+void pinSetup(void)
 {
-	// pin INT1 (PD3) has pin change interrupt
-	DDRD 	|= (1<<2);	// PD3(input), PD2(output)
-	PORTD 	|= (1<<2);	// PD3(low)  , PD2(high)
+	// pin INT0 (PD2) has pin change interrupt
+	DDRD 	= (0x00)|(1<<3);	// PD3(output), PD2(input) (INT0)
+	PORTD 	= (0x00)|(1<<3);	// PD3(high)  , PD2(low) (INT0)
 
-	DDRB	|= (1<<2)|(1<<1)|(1<<0);	// PB2,PB1,PB0 (outputs)
-	PORTD	&= (0b11111000);			// PB2-0 (all low)	USE FOR LEDs
+	DDRB	= DDRB  | (0x07);	// PB2,PB1,PB0 (outputs)
+	PORTB	= PORTB & (0xF8);	// PB2-0 (all low)	USE FOR LEDs
 }
+
+
+
+
+
+
+
+
+
+
+
 

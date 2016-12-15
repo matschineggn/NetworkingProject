@@ -27,18 +27,16 @@ void collision(void)
 	collisionLED();
 }
 
-
-
 // LED controls
 
 void idleLED(void)
 {
-	PORTB = (PORTB & (0xF8)) | (1<<2);	// PB2(high) idle LED (blue)
+	PORTB = (PORTB & (0xF8)) | (1<<2);	// PB2(high) idle LED (green)
 }
 
 void busyLED(void)
 {
-	PORTB = (PORTB & (0xF8)) | (1<<1);	// PB1(high) busy LED (green/yellow)
+	PORTB = (PORTB & (0xF8)) | (1<<1);	// PB1(high) busy LED (yellow)
 }
 
 void collisionLED(void)
