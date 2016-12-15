@@ -18,8 +18,8 @@ void timer(int Tb)
 	{
 		if(count < Tb)
 		{
-			count = count + 1;
-			delay_us(1);		// checking in microSec intervals (hopefully)
+			count = count + 5;	// Can't use 1us intervals because delay func wont work.
+			delay_us(5);		// checking in microSec intervals (hopefully)
 		}
 		else
 		{

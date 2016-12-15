@@ -63,9 +63,9 @@ void FSM(int Tb)
 			}
 		break;
 
-		default:
-			currentState = IDLE;
-		break;
+//		default:
+//			currentState = IDLE;
+//		break;
 	}
 
 	currentState = nextState;

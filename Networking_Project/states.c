@@ -17,13 +17,11 @@ void idle(void)
 
 void busy(void)
 {
-
 	busyLED();
 }
 
 void collision(void)
 {
-
 	collisionLED();
 }
 
