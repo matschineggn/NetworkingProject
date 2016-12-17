@@ -11,7 +11,7 @@
 
 void idle(void)
 {
-	PORTD |= (1<<3);	// PD2(high) while in idle
+	PORTD = PORTD | (1<<3);	// PD2(high) while in idle
 	idleLED();
 }
 
