@@ -47,27 +47,9 @@ int main(void)
 
 	while(1)
 	{
-		switch(currentState)
-		{
-			case IDLE:			// Idle State
-				idle();
-				FSM(Tb);
-			break;
 
-			case BUSY:			// Busy State
-				busy();
-				FSM(Tb);
-			break;
+		FSM(Tb);
 
-			case COLLISION:		// Collision State
-				collision();
-				FSM(Tb);
-			break;
-
-			default:
-				currentState = IDLE;
-			break;
-		}
 	}
 }
 

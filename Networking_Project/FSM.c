@@ -12,6 +12,7 @@ void FSM(int Tb)
 	switch(currentState)
 	{
 		case IDLE:			// Idle State
+			idle();
 			if(initRxLine == 4)		// Receiver input HIGH
 			{
 				nextState = IDLE;
@@ -27,6 +28,7 @@ void FSM(int Tb)
 		break;
 
 		case BUSY:			// Busy State
+			busy();
 			if(count == Tb)
 			{
 //				if(initRxLine == RxLine)	//CHANGE WITH CODE IN "timer.c"
@@ -44,11 +46,11 @@ void FSM(int Tb)
 			{
 				nextState = BUSY;
 				timer(Tb);
-
 			}
 		break;
 
 		case COLLISION:		// Collision State
+			collision();
 			if(initRxLine == 0)		// Receiver input LOW
 			{
 				nextState = COLLISION;
@@ -63,9 +65,9 @@ void FSM(int Tb)
 			}
 		break;
 
-//		default:
-//			currentState = IDLE;
-//		break;
+		default:
+			currentState = IDLE;
+		break;
 	}
 
 	currentState = nextState;
