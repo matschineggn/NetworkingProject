@@ -29,4 +29,5 @@ ISR(INT0_vect)			// Interrupt for INT0 (PD2)
 {
 	RxLine = PIND & (0x04);		// giving RxIntTrig the value of the Rx line that triggered an interrupt
 	whileEscape = 0;			// leaves while loop before 0.4ms expire
+	interruptDisable();
 }
