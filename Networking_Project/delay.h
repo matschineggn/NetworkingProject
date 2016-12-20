@@ -43,3 +43,19 @@
 //void delay_us(uint16_t us);
 //
 //#endif /* DELAY_H_ */
+
+#ifndef _DELAY_H
+#define _DELAY_H
+
+#include "states.h"
+#include "interrupts.h"
+#include "timer.h"
+#include "FSM.h"
+
+#define CYCLES_PER_US 16				// cpu cycles per microsecond
+
+void delay_ms(uint16_t ms);
+
+void delay_us(uint16_t us);
+
+#endif
