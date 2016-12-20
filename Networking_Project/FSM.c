@@ -72,4 +72,3 @@ void FSM(int Tb)
 
 	currentState = nextState;
 }
-

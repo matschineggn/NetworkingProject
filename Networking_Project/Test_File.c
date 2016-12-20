@@ -6,11 +6,10 @@
  */
 
 #include <avr/io.h>
-//#include <MSOE_I2C/delay.h>
+#include <MSOE_I2C/delay.h>
 #include <MSOE/bit.c>
 #include <avr/interrupt.h>
 
-//#include "delay.h"
 #include "states.h"
 #include "interrupts.h"
 #include "timer.h"
@@ -19,7 +18,7 @@
 void pinSetup(void);
 //void stateCheck(void);
 
-int Tb = 400; 	// period in micro second (400us = 0.4ms) (Using 215 to obtain proper threshold)
+int Tb = 215; 	// period in micro second (400us = 0.4ms) (Using 215 to obtain proper threshold)
 // I think that Tb needs to be around half the 400us because it is acting like the sample frequency
 // which needs to be twice the fastest frequency, or half 400us.
 
