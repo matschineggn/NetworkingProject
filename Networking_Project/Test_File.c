@@ -18,9 +18,7 @@
 void pinSetup(void);
 //void stateCheck(void);
 
-int Tb = 215; 	// CHANGE Tb VALUE IN FSM.c AND timer.c CASES
-
-// period in micro second (400us = 0.4ms) (Using 215 to obtain proper threshold)
+int Tb = 215; 	// period in micro second (400us = 0.4ms) (Using 215 to obtain proper threshold)
 // I think that Tb needs to be around half the 400us because it is acting like the sample frequency
 // which needs to be twice the fastest frequency, or half 400us.
 
@@ -38,15 +36,13 @@ int main(void)
 
 	initRxLine = PIND & (0x04);
 
-	switch(initRxLine)
+	if(initRxLine == 4)
 	{
-		case 4:
-			currentState = IDLE;
-		break;
-
-		case 0:
-			currentState = COLLISION;
-		break;
+		currentState = IDLE;
+	}
+	else
+	{
+		currentState = COLLISION;
 	}
 
 	while(1)
@@ -60,8 +56,8 @@ int main(void)
 void pinSetup(void)
 {
 	// pin INT0 (PD2) has pin change interrupt
-	DDRD 	= DDRD | (0x08);	// PD3(output), PD2(input) (INT0)
-	PORTD 	= PORTD| (0x08);	// PD3(high)  , PD2(low) (INT0)
+	DDRD 	= (0x00)|(1<<3);	// PD3(output), PD2(input) (INT0)
+	PORTD 	= (0x00)|(1<<3);	// PD3(high)  , PD2(low) (INT0)
 
 	DDRB	= DDRB  | (0x07);	// PB2,PB1,PB0 (outputs)
 	PORTB	= PORTB & (0xF8);	// PB2-0 (all low)	USE FOR LEDs
