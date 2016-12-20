@@ -16,6 +16,7 @@
 #include "states.h"
 #include "timer.h"
 #include "FSM.h"
+#include "delay.h"
 
 int whileEscape;
 int RxLine;

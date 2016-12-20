@@ -16,6 +16,7 @@
 #include "states.h"
 #include "interrupts.h"
 #include "timer.h"
+#include "delay.h"
 
 int currentState;
 int nextState;

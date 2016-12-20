@@ -16,6 +16,7 @@
 #include "interrupts.h"
 #include "timer.h"
 #include "FSM.h"
+#include "delay.h"
 
 /**
  * States of the state machine
