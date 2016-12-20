@@ -13,55 +13,57 @@ void FSM(int Tb)
 	{
 		case IDLE:			// Idle State
 			idle();
-			if(initRxLine == 4)		// Receiver input HIGH
+			switch(initRxLine)
 			{
-				nextState = IDLE;
-				initRxLine = PIND & (0x04);
-//				timer();
-//				initRxLine = RxLine;
-			}
-			else					// Reciever input LOW
-			{
-				nextState = BUSY;
-				timer(Tb);
+				case 4:
+					nextState = IDLE;
+					initRxLine = PIND & (0x04);
+				break;
+
+				case 0:
+					nextState = BUSY;
+					timer(Tb);
+				break;
 			}
 		break;
 
 		case BUSY:			// Busy State
 			busy();
-			if(count == Tb)
+			switch(count)
 			{
-//				if(initRxLine == RxLine)	//CHANGE WITH CODE IN "timer.c"
-				if(RxLine == 0)		// timer expired while RxLine LOW
-				{
-					nextState = COLLISION;
-				}
-				else				// timer expired while RxLine HIGH
-				{
-					nextState = IDLE;
-				}
-				initRxLine = RxLine;
-			}
-			else
-			{
-				nextState = BUSY;
-				timer(Tb);
+				case 215:
+					switch(RxLine)
+					{
+						case 0:
+							nextState = COLLISION;
+						break;
+
+						case 4:
+							nextState = IDLE;
+						break;
+					}
+				break;
+
+				default:
+					nextState = BUSY;
+					timer(Tb);
+				break;
 			}
 		break;
 
 		case COLLISION:		// Collision State
 			collision();
-			if(initRxLine == 0)		// Receiver input LOW
+			switch(initRxLine)
 			{
-				nextState = COLLISION;
-				initRxLine = PIND & (0x04);
-//				timer();
-//				initRxLine = RxLine;
-			}
-			else					// Reciever input HIGH
-			{
-				nextState = BUSY;
-				timer(Tb);
+				case 0:
+					nextState = COLLISION;
+					initRxLine = PIND & (0x04);
+				break;
+
+				case 4:
+					nextState = BUSY;
+					timer(Tb);
+				break;
 			}
 		break;
 
