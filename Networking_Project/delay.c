@@ -114,8 +114,8 @@ void delay_ms(uint16_t ms)
 void delay_us(uint16_t us)
 {
 	uint16_t _count;
-//	_count=us/4*CYCLES_PER_US;
-	_count = us/4;//*CYCLES_PER_US;
+	_count=us/4*CYCLES_PER_US;
+//	_count = us; // /4*CYCLES_PER_US;
 
 	asm volatile (
 		"1: sbiw %0,1" "\n\t"

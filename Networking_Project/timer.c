@@ -27,6 +27,15 @@ void timer(int Tb)
 //			RxLine = initRxLine;	//CHANGE WITH CODE IN "FSM.c"
 			RxLine = PIND & (0x04);
 			whileEscape = 0;
+
+//			if(RxLine == 0)
+//			{
+//				count = 416;	// collision standard threshold
+//			}
+//			else
+//			{
+//				count = 452;	// idle standard threshold
+//			}
 		}
 	}
 }
