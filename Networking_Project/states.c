@@ -11,7 +11,7 @@
 
 void idle(void)
 {
-	PORTD = PORTD | (0x04);	// PD2(high) while in idle
+	PORTD = PORTD | (0x08);	// PD2(high) while in idle
 	idleLED();
 }
 
@@ -29,15 +29,18 @@ void collision(void)
 
 void idleLED(void)
 {
-	PORTB = (PORTB & (0xF8)) | (1<<2);	// PB2(high) idle LED (green)
+	PORTB = (0x04);
+//	PORTB = (PORTB & (0xF8)) | (1<<2);	// PB2(high) idle LED (green)
 }
 
 void busyLED(void)
 {
-	PORTB = (PORTB & (0xF8)) | (1<<1);	// PB1(high) busy LED (yellow)
+	PORTB = (0x02);
+//	PORTB = (PORTB & (0xF8)) | (1<<1);	// PB1(high) busy LED (yellow)
 }
 
 void collisionLED(void)
 {
-	PORTB = (PORTB & (0xF8)) | (1<<0);	// PB0(high) collision LED (red)
+	PORTB = (0x01);
+//	PORTB = (PORTB & (0xF8)) | (1<<0);	// PB0(high) collision LED (red)
 }
