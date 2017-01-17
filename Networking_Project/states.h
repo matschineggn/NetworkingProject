@@ -22,7 +22,10 @@
  * States of the state machine
  */
 typedef uint8_t STATE;
-enum STATE {IDLE, BUSY, COLLISION};
+enum STATE
+{
+	IDLE, BUSY, COLLISION
+};
 
 /********************************************************************************
  * Function name: idle

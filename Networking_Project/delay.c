@@ -101,7 +101,7 @@ void delay_ms(uint16_t ms)
 {
 	volatile uint16_t i;
 
-	for(i=ms;i>0;i--)
+	for (i = ms; i > 0; i--)
 	{
 		delay_us(1000);
 	}
@@ -114,11 +114,11 @@ void delay_ms(uint16_t ms)
 void delay_us(uint16_t us)
 {
 	uint16_t _count;
-	_count=us/4*CYCLES_PER_US;
+	_count = us / 4 * CYCLES_PER_US;
 //	_count = us; // /4*CYCLES_PER_US;
 
 	asm volatile (
-		"1: sbiw %0,1" "\n\t"
-		"brne 1b" : "=w" (_count) : "0" (_count)
+			"1: sbiw %0,1" "\n\t"
+			"brne 1b" : "=w" (_count) : "0" (_count)
 	);
 }

@@ -24,28 +24,31 @@ void pinSetup(void);
 //void stateCheck(void);
 void transmitter(void);
 void Transmit(int);
-void USART_Init( unsigned int );
+void USART_Init(unsigned int);
 unsigned char USART_Receive(void);
 void manchesterOne(void);
 void manchesterZero(void);
 
 bool stringComplete = false;  // whether the string is complete
+bool enableTx = false;
 // reserve 200 bytes for the inputString:
 char inputString[80];
 char inChar;
 float charCon;
 int charVect[8];
-int msbVect[8];
-int lsbVect[8];
+int manchesterBits[16];
+//int msbArray[8];
+//int lsbArray[8];
 int character;
 int charIN;
 int intChar;
 int transmit;
 int maxDecVal;
+int twoBits;
 int n;
 int N;
 
-int Tb = 215; 	// period in micro second (400us = 0.4ms) (Using 215 to obtain proper threshold)
+int Tb = 215; // period in micro second (400us = 0.4ms) (Using 215 to obtain proper threshold)
 // I think that Tb needs to be around half the 400us because it is acting like the sample frequency
 // which needs to be twice the fastest frequency, or half 400us.
 
@@ -56,8 +59,6 @@ int Tb = 215; 	// period in micro second (400us = 0.4ms) (Using 215 to obtain pr
 //int whileEscape;			// declared in "interrupts.h"
 //int count;				// declared in "timer.h"
 
-
-
 int main(void)
 {
 	USART_Init(MYUBRR);
@@ -67,19 +68,21 @@ int main(void)
 
 	initRxLine = PIND & (0x04);
 
-	if(initRxLine == 4)
-	{
-		currentState = IDLE;
-	}
-	else
-	{
-		currentState = COLLISION;
-	}
+//	if (initRxLine == 4)
+//	{
+//		currentState = IDLE;
+//	}
+//	else
+//	{
+//		currentState = COLLISION;
+//	}
 
-	while(1)
+	while (1)
 	{
 
-		FSM(Tb);
+//		FSM(Tb);
+
+		transmitter();
 
 	}
 }
@@ -87,13 +90,12 @@ int main(void)
 void pinSetup(void)
 {
 	// pin INT0 (PD2) has pin change interrupt
-	DDRD 	= (0x00)|(1<<3);	// PD3(output), PD2(input) (INT0)
-	PORTD 	= (0x00)|(1<<3);	// PD3(high)  , PD2(low) (INT0)
+	DDRD = (0x00) | (1 << 3);	// PD3(output), PD2(input) (INT0)
+	PORTD = (0x00) | (1 << 3);	// PD3(high)  , PD2(low) (INT0)
 
-	DDRB	= DDRB  | (0x07);	// PB2,PB1,PB0 (outputs)
-	PORTB	= PORTB & (0xF8);	// PB2-0 (all low)	USE FOR LEDs
+	DDRB = DDRB | (0x07);	// PB2,PB1,PB0 (outputs)
+	PORTB = PORTB & (0xF8);	// PB2-0 (all low)	USE FOR LEDs
 }
-
 
 void transmitter(void)
 {
@@ -105,18 +107,18 @@ void transmitter(void)
 //	/* Wait for data to be received */
 //	while ( !(UCSR0A & (1<<RXC0)) )	;
 
-	if (UCSR0A && (1<<RXC0))	//if new data, get it
+	if (UCSR0A && (1 << RXC0))	//if new data, get it
 	{
 //		N = 0;
 
-		while(stringComplete == false)
+		while (stringComplete == false)
 		{
 			//get the new byte:
-			 inChar = USART_Receive();
+			inChar = USART_Receive();
 			//add it to the inputString:
 			inputString[N] = inChar;
 
-			N = N+1;			// counts number of characters
+			N = N + 1;			// counts number of characters
 
 			if (inChar == '\r')
 			{
@@ -127,11 +129,11 @@ void transmitter(void)
 		}
 	}
 
-	while(transmit == 1)
+	while (transmit == 1)
 	{
 //		for (n=0 ; n==N ; n+1)
 
-		if( inputString[n] != '\0' )
+		if (inputString[n] != '\0')
 		{
 			character = inputString[n];
 			charIN = character;
@@ -139,101 +141,88 @@ void transmitter(void)
 			Transmit(charIN);
 
 		}
+		else
+		{
+			//Finish transmitting
+			transmit = 0;
+		}
 
 	}
 
 }
 
+
+// Transmit( ) converts character into 16-bit manchester character
 void Transmit(int charIN)
 {
-	charCon = charIN;
+	charCon = charIN;	// integer saved as float
 
-	for(n=0; n<5; n++)
+	// Convert characters to 16-bit array of Manchester code.
+	for (n = 0; n < 8; n++)
 	{
-		maxDecVal = (2^(8-n));
-		if(charCon >= maxDecVal)
+		twoBits = 2*n;
+		maxDecVal = (2 ^ (8 - n));
+		if (charCon >= maxDecVal)	// MSB
 		{
-			charVect[n] = 1;
+			manchesterBits[twoBits] = 1;
+			manchesterBits[(twoBits+1)]=0;
 		}
 		else
 		{
-			charVect[n] = 0;
+			manchesterBits[twoBits] = 0;
+			manchesterBits[(twoBits+1)]=1;
+		}
+
+		if(n == 8)
+		{
+			enableTx = true;
 		}
 	}
 
-	// Convert characters to 8 bit strings
-	if(charCon >= 128)
+	while(enableTx == true)
 	{
-		charVect[n] = '1';
-		n = n+1;
+		// Turn on interrupt for timer counter on rising and falling edge to transfer.
+		// Timer counter need to be close to 5000 Hz
+
+
 	}
-	else
-		{
-			n = n+1;
-		}
 
-	if(charCon >= 128)
-		{
-			charVect[n] = '1';
-			n = n+1;
-		}
-		else
-			{
-				n = n+1;
-			}
-
-
-//	switch(charIN)
+//	for (n = 0; n < 5; n++)
 //	{
-//
-//	case 97 :		// a
-//
-//		break;
-//
-//	case 98 :		// b
-//
-//		break;
-//
-//	case 99 :		// c
-//
-//	break;
-//
-//	case  :			// d
-//
-//		break;
-//
-//	case  :			// e
-//
-//		break;
-//
-//
-//	default:		// f
-//
-//		break;
+//		twoBits = (2*n)+5;			//
+//		maxDecVal = (2 ^ (8 - n));
+//		if (charCon >= maxDecVal)	// LSB
+//		{
+//			lsbArray[twoBits] = 1;
+//			lsbArray[(twoBits+1)]=0;
+//		}
+//		else
+//		{
+//			lsbArray[twoBits] = 0;
+//			lsbArray[(twoBits+1)];
+//		}
 //	}
-
 }
 
-
-void USART_Init( unsigned int ubrr)
+void USART_Init(unsigned int ubrr)
 {
 // Set Rx as input
 
-/*Set baud rate */
-UBRR0H = (unsigned char)(ubrr>>8);
-UBRR0L = (unsigned char)ubrr;
+	/*Set baud rate */
+	UBRR0H = (unsigned char) (ubrr >> 8);
+	UBRR0L = (unsigned char) ubrr;
 //Enable receiver and transmitter
-UCSR0B = (1<<RXEN0)|(1<<TXEN0);
-/* Set frame format: 8data, 2stop bit */
-UCSR0C = (1<<USBS0)|(3<<UCSZ00);
+	UCSR0B = (1 << RXEN0) | (1 << TXEN0);
+	/* Set frame format: 8data, 2stop bit */
+	UCSR0C = (1 << USBS0) | (3 << UCSZ00);
 }
 
 unsigned char USART_Receive(void)
 {
 ///* Wait for data to be received */
 //while ( !(UCSR0A & (1<<RXC0)) )	;
-/* Get and return received data from buffer */
-return UDR0;
+	/* Get and return received data from buffer */
+	return UDR0;
 }
 
 void manchesterOne(void)
@@ -255,6 +244,4 @@ void manchesterZero(void)
 
 	delay_us(200);
 }
-
-
 

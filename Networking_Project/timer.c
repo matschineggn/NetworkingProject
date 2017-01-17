@@ -14,11 +14,11 @@ void timer(int Tb)
 
 	interruptEnable();
 
-	while(whileEscape == 1)		// Counter over 0.4ms checking
+	while (whileEscape == 1)		// Counter over 0.4ms checking
 	{
-		if(count < Tb)
+		if (count < Tb)
 		{
-			count = count + 5;	// Can't use 1us intervals because delay func wont work.
+			count = count + 5;// Can't use 1us intervals because delay func wont work.
 			delay_us(5);		// checking in microSec intervals (hopefully)
 		}
 		else
