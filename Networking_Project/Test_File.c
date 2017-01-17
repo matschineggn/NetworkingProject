@@ -21,13 +21,13 @@
 #define MYUBRR FOSC/16/BAUD-1
 
 void pinSetup(void);
+void timerCounterSetup(void);
 //void stateCheck(void);
 void transmitter(void);
 void Transmit(int);
 void USART_Init(unsigned int);
 unsigned char USART_Receive(void);
-void manchesterOne(void);
-void manchesterZero(void);
+
 
 bool stringComplete = false;  // whether the string is complete
 bool enableTx = false;
@@ -45,8 +45,10 @@ int intChar;
 int transmit;
 int maxDecVal;
 int twoBits;
+int interruptCount;
 int n;
 int N;
+int x;	// used in for loops
 
 int Tb = 215; // period in micro second (400us = 0.4ms) (Using 215 to obtain proper threshold)
 // I think that Tb needs to be around half the 400us because it is acting like the sample frequency
@@ -62,6 +64,7 @@ int Tb = 215; // period in micro second (400us = 0.4ms) (Using 215 to obtain pro
 int main(void)
 {
 	USART_Init(MYUBRR);
+	timerCounterSetup();
 
 	pinSetup();
 	interruptSetup();
@@ -79,22 +82,29 @@ int main(void)
 
 	while (1)
 	{
-
 //		FSM(Tb);
 
 		transmitter();
-
 	}
 }
 
 void pinSetup(void)
 {
 	// pin INT0 (PD2) has pin change interrupt
-	DDRD = (0x00) | (1 << 3);	// PD3(output), PD2(input) (INT0)
-	PORTD = (0x00) | (1 << 3);	// PD3(high)  , PD2(low) (INT0)
+	DDRD = DDRD | (1<<3) | (1<<1);	// PD3(output), PD2(input) (INT0) , Tx(output), Rx(input)
+	PORTD = PORTD | (1 << 3);	// PD3(high)  , PD2(low) (INT0)
 
 	DDRB = DDRB | (0x07);	// PB2,PB1,PB0 (outputs)
 	PORTB = PORTB & (0xF8);	// PB2-0 (all low)	USE FOR LEDs
+}
+
+void timerCounterSetup(void)
+{
+//	TCCR0A = (1<<WGM01);		//CTC Mode
+	TCCR0B = (1<<CS01);			//Prescaler of 8
+	OCR0A = 199;				//Value for 5kHz (199)
+
+//	TIMSK0 = (1<<OCIE0A);		//Enable compare match interrupt for OCR0A
 }
 
 void transmitter(void)
@@ -109,7 +119,7 @@ void transmitter(void)
 
 	if (UCSR0A && (1 << RXC0))	//if new data, get it
 	{
-//		N = 0;
+		N = 0;	// starts inputString[] at address '0'
 
 		while (stringComplete == false)
 		{
@@ -129,26 +139,29 @@ void transmitter(void)
 		}
 	}
 
+	if(transmit == 1)
+	{
+		PORTD = PORTD & (0b11110111);		// Pulls Tx LOW before transmitting
+	}
+
 	while (transmit == 1)
 	{
-//		for (n=0 ; n==N ; n+1)
-
-		if (inputString[n] != '\0')
+		if ((inputString[n] != '\0'))		// | (inputString[n] != '\r'))
 		{
-			character = inputString[n];
-			charIN = character;
+			charIN = inputString[n];
 
 			Transmit(charIN);
 
+			n = n+1;	// move to next character
 		}
 		else
 		{
 			//Finish transmitting
 			transmit = 0;
+
+			PORTD = PORTD | (1<<3);		//Pulls Tx HIGH after transmitting
 		}
-
 	}
-
 }
 
 
@@ -158,55 +171,44 @@ void Transmit(int charIN)
 	charCon = charIN;	// integer saved as float
 
 	// Convert characters to 16-bit array of Manchester code.
-	for (n = 0; n < 8; n++)
+	for (x = 0; x < 8; x++)
 	{
-		twoBits = 2*n;
-		maxDecVal = (2 ^ (8 - n));
-		if (charCon >= maxDecVal)	// MSB
+		twoBits = 2*x;
+		maxDecVal = (2 ^ (8 - x));
+		if (charCon >= maxDecVal)
 		{
+			// "1" in manchester
 			manchesterBits[twoBits] = 1;
-			manchesterBits[(twoBits+1)]=0;
+			manchesterBits[(twoBits+1)] = 0;
 		}
 		else
 		{
+			// "0" in manchester
 			manchesterBits[twoBits] = 0;
-			manchesterBits[(twoBits+1)]=1;
+			manchesterBits[(twoBits+1)] = 1;
 		}
 
 		if(n == 8)
 		{
-			enableTx = true;
+			enableTx = true;		// Enable transmission
+			interruptCount = 0;		// sets manchester[] array at 0 address
+			TCNT0 = (0x00);			// Reset Count Value to '0'
 		}
 	}
 
 	while(enableTx == true)
 	{
-		// Turn on interrupt for timer counter on rising and falling edge to transfer.
-		// Timer counter need to be close to 5000 Hz
-
-
+		// Turn on interrupt for timer counter '0' on rising and falling edge to transfer.
+		// Timer counter needs to be close to 5000 Hz
+		TIMSK0 = (1<<OCIE0A);		//Enable compare match interrupt for OCR0A
+		TCCR0A = (1<<WGM01);		//Timer 0 "turn ON"
 	}
 
-//	for (n = 0; n < 5; n++)
-//	{
-//		twoBits = (2*n)+5;			//
-//		maxDecVal = (2 ^ (8 - n));
-//		if (charCon >= maxDecVal)	// LSB
-//		{
-//			lsbArray[twoBits] = 1;
-//			lsbArray[(twoBits+1)]=0;
-//		}
-//		else
-//		{
-//			lsbArray[twoBits] = 0;
-//			lsbArray[(twoBits+1)];
-//		}
-//	}
 }
 
 void USART_Init(unsigned int ubrr)
 {
-// Set Rx as input
+// Set Rx as input ( Set in pinSetup() )
 
 	/*Set baud rate */
 	UBRR0H = (unsigned char) (ubrr >> 8);
@@ -221,27 +223,34 @@ unsigned char USART_Receive(void)
 {
 ///* Wait for data to be received */
 //while ( !(UCSR0A & (1<<RXC0)) )	;
+
 	/* Get and return received data from buffer */
 	return UDR0;
 }
 
-void manchesterOne(void)
+ISR(TIMER0_COMPA_vect)
 {
-	//Tx High
+	//Set pin3 equal to manchester[ ] bit value
+	if(manchesterBits[interruptCount] >= 1)
+	{
+		PORTD = PORTD | (1<<3);			//Transmit line pulled "HIGH"
+	}
+	else
+	{
+		PORTD = PORTD & (0b11110111);	//Transmit line pulled "LOW"
+	}
 
-	delay_us(200);
-	//Tx Low
+	TCNT0 = (0x00);			// Reset Count Value to '0'
 
-	delay_us(200);
+	interruptCount = interruptCount+1;	//increment to next bit in manchester[ ]
+
+	if(interruptCount == 16)
+	{
+		enableTx = false;
+		TIMSK0 = (0x00);		//Disable compare match interrupt for OCR0A
+		TCCR0A = (0x00);		//Timer 0 "turn OFF"
+	}
 }
 
-void manchesterZero(void)
-{
-	//Tx Low
 
-	delay_us(200);
-	//Tx High
-
-	delay_us(200);
-}
 
